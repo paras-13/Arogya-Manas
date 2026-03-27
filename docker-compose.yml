@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. MySQL Database Container
+  db:
+    image: mysql
+    container_name: arogyamanas-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: arogya_manas
+      MYSQL_ROOT_PASSWORD: Paras13@mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # Add a healthcheck so Docker knows exactly when MySQL is fully ready to accept connections
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "root", "-pParas13@mysql"]
+      timeout: 20s
+      retries: 10
+
+  # 2. Django Backend Container
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    image: compose-image-arogya-backend
+    container_name: arogyamanas-backend
+    restart: always
+    env_file:
+      - ./back/.env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+    ports:
+      - "8000:8000"
+    # Automating the migrations before the server starts!
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      db:
+        # Tell the backend to wait until the DB service passes its healthcheck
+        condition: service_healthy
+
+  # 3. React/Vite Frontend Container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: compose-image-arogya-frontend
+    container_name: arogyamanas-frontend
+    restart: always
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
