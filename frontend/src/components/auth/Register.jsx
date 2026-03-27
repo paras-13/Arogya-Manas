@@ -31,7 +31,6 @@ const Register = () => {
       toast.warning("Password and Confirm Password are not matching");
       return;
     }
-    console.log(formData);
     try {
       const res = await api.post("/accounts/register/", formData);
       authDispatcher({

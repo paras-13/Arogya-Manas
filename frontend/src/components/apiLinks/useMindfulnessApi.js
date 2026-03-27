@@ -26,8 +26,8 @@ export function useMindfulnessApi() {
     api.post("/mindfulness/meditations/start/", payload);
   const completeMeditation = (payload) =>
     api.post("/mindfulness/meditations/complete/", payload);
-  const getMeditationHeatmap = (days = 90) =>
-    api.get("/mindfulness/meditations/heatmap/", { params: { days } });
+  const getMeditationHeatmap = ({ year, month } = {}) =>
+    api.get("/mindfulness/meditations/heatmap/", { params: { year, month } });
   const getMeditationStats = () => api.get("/mindfulness/meditations/stats/");
 
   // React Query wrappers
@@ -95,7 +95,7 @@ export function useMindfulnessApi() {
       onSuccess: () => {
         qc.invalidateQueries(["mindfulness", "meditations"]);
         qc.invalidateQueries(["mindfulness", "meditationHeatmap"]);
-        qc.invalidateQueries(["mindfulness", "meditationStreaks"]);
+        qc.invalidateQueries(["mindfulness", "meditationStats"]);
       },
     });
 
@@ -105,18 +105,22 @@ export function useMindfulnessApi() {
       onSuccess: () => {
         qc.invalidateQueries(["mindfulness", "meditations"]);
         qc.invalidateQueries(["mindfulness", "meditationHeatmap"]);
-        qc.invalidateQueries(["mindfulness", "meditationStreaks"]);
+        qc.invalidateQueries(["mindfulness", "meditationStats"]); // Fixed: was 'meditationStreaks' (wrong key)
       },
     });
 
-  const useMeditationHeatmap = (days = 90) =>
-    useQuery({
-      queryKey: ["mindfulness", "meditationHeatmap", days],
+  const useMeditationHeatmap = ({ year, month } = {}) => {
+    const now = new Date();
+    const y = year  || now.getFullYear();
+    const m = month || now.getMonth() + 1;
+    return useQuery({
+      queryKey: ["mindfulness", "meditationHeatmap", y, m],
       queryFn: () =>
-        getMeditationHeatmap(days).then(
-          (r) => r.data || { days: {}, start: null, end: null }
+        getMeditationHeatmap({ year: y, month: m }).then(
+          (r) => r.data || { days: {}, year: y, month: m, month_name: "" }
         ),
     });
+  };
 
   const useGetMeditationStats = () =>
     useQuery({

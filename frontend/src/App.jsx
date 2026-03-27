@@ -48,9 +48,18 @@ function App() {
   const { logout, authState } = useContext(AuthContext);
 
   useEffect(() => {
-    api.get("testing/ping").catch(console.log);
-    registerLogout(logout);
-  }, [logout]);
+    const testingBackend = async() => {
+      try {
+        const resp = await api.get("/testing/ping");
+        console.log(resp);
+      }
+      catch(err) {
+        console.log(err);
+      }
+    }
+    testingBackend()
+    // registerLogout(logout);
+  }, []);
 
   const hasToken = !!authState?.token;
   const userRole = authState?.user?.role;
