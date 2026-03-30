@@ -1,1 +1,6 @@
 env
+*.pem
+docker-compose.yml
+k8s
+terraform
+ansible

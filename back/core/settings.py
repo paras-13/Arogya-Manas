@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-5-f$he)dk33u-#xwx6#1$r1=88jxx3#^&i&w7g@@4rx35*r93^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# In a real production scenario, restrict this to your actual domain name, but for now we allow the cluster IPs.
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -142,7 +142,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+# During the initial AWS setup, allow all origins so the new Ingress controller can route traffic seamlessly.
+CORS_ALLOW_ALL_ORIGINS = True

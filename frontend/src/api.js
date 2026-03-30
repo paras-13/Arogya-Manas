@@ -8,7 +8,8 @@ export const registerLogout = (fn) => {
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API,
+  // Hardcoded to '/api' so it seamlessly talks to the AWS Ingress Controller
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
